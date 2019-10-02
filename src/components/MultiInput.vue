@@ -1,7 +1,7 @@
 <template>
-    <div id="multi-input">
-        <h1>Componente MultiInput Mask</h1>
-        <div>
+    <div id="main-multi-input">
+        <h1>{{ titulo }}</h1>
+        <div class="center">
             <input id="multi-input" type="text" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" v-bind:maxlength="limiteMaximoCampo">
             <button v-bind="validateInput()">Pesquisar</button>
             <div v-if="pesquisarPorRaizCnpj === true">
@@ -28,6 +28,9 @@
 <script>
 export default {
      name: 'MultiInput',
+     props: {
+         titulo: String
+     },
      data() {
          return {
              inputValue: '',
@@ -45,7 +48,7 @@ export default {
             
             const regexRegra1 = /[A-Zi]/i;
             this.inputValue = this.inputValue;
-            //console.log(this.inputValue.match(regexRegra1));
+            
             // Regra 1 - somente nomeRazaoSocial recebe o valor de inputValue pois o campo contem letras e numeros.
             if(this.inputValue.match(regexRegra1) !== null){
                 this.limiteMaximoCampo = 100;
@@ -88,5 +91,19 @@ export default {
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+h1 {
+    background-color: darkgreen;
+    color: white;
+    text-align: center;
+    margin: auto;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
 
+.center {
+    display: table;
+    margin: auto;
+    border: 3px solid green;
+    padding: 10px;
+}
 </style>
