@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <MultiInput id="teste" titulo="Componente MultiInput Mask"/>
+    <MultiInput titulo="Componente MultiInput Mask"/>
   </div>
 </template>
 
