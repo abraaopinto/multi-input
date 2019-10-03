@@ -5,7 +5,7 @@
             <input id="multi-input" type="text" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" v-bind:maxlength="limiteMaximoCampo">
             <button v-bind="validateInput()">Pesquisar</button>
             <div v-if="inputValue.length === 8 ">
-                <input type="checkbox" v-bind:value="pesquisarPorRaizCnpj" v-on:input="pesquisarPorRaizCnpj = $event.target.value"> Deseja pesquisar pela raiz do CNPJ.<br>
+                <input type="checkbox" v-bind:value="pesquisarPorRaizCnpj" @change="validarPesquisaRaiz($event.target.value)"> Deseja pesquisar pela raiz do CNPJ.<br>
             </div>
         </div>
         <div>
@@ -91,7 +91,7 @@ export default {
                 if(this.inputValue.length <= 8 && this.pesquisarPorRaizCnpj ) this.cnpjRaiz = this.inputValue;
                 
                 // Verifica se o usuario não deseja consultar pela Raiz do CNPJ.
-                if(this.inputValue.length <= 8 && !this.pesquisarPorRaizCnpj ) this.cnpjRaiz = '';  
+                if( !this.pesquisarPorRaizCnpj ) this.cnpjRaiz = '';  
             }                         
         },
         validarCPF(pCpf){
@@ -179,6 +179,9 @@ export default {
             
             if (resultado != digitos.charAt(1)) return false;
             return true;
+        },
+        validarPesquisaRaiz(p){
+            return this.pesquisarPorRaizCnpj = p;
         }
     }
 }
