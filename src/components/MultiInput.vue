@@ -2,10 +2,16 @@
     <div id="main-multi-input">
         <h1>{{ titulo }}</h1>
         <div class="center">
-            <input id="multi-input" mask="000.000.000-00" type="text" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" v-bind:maxlength="limiteMaximoCampo">
+            <input id="multi-input" mask="000.000.000-00" :raw="false" type="text" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" v-bind:maxlength="limiteMaximoCampo">
             <button v-bind="validateInput()">Pesquisar</button>
             <div v-if="inputValue.length === 8 && inputValue.match(/[A-Zi]/i) === null">
                 <input type="checkbox" v-model="pesquisarPorRaizCnpj" @on="pesquisarPorRaizCnpj = $event.target.value"> Deseja pesquisar pela raiz do CNPJ.<br>
+            </div>
+            <div v-if="inputValue.length === 3 && inputValue.match(/[A-Zi]/i) !== null">
+                <input type="radio" name="tipoPessoa" id="pessoaFisica" v-model="tipoPessoa" value="PESSOA_FISICA" >
+                <label for="pessoaFisica">Pessoa Fisíca</label>
+                <input type="radio" name="tipoPessoa" id="pessoaJuridica" v-model="tipoPessoa" value="PESSOA_JURIDICA" >
+                <label for="pessoaJuridica">Pessoa Juridica</label>
             </div>
         </div>
         <div>
@@ -17,6 +23,7 @@
                 <li>Nome ou Razao Social: {{ nomeRazaoSocial }} </li>
                 <li>Quantidade de caracteres digitados: {{ inputValue.length }}</li>
                 <li>Deseja pesquisar pela raiz do CNPJ: {{ pesquisarPorRaizCnpj }}</li>
+                <li>Tipo pessoa: {{ tipoPessoa }}</li>
             </ul>
         </div>
         <div class="regras">
@@ -41,6 +48,7 @@ export default {
              cnpjRaiz: '',
              nomeRazaoSocial: '',
              pesquisarPorRaizCnpj: false,
+             tipoPessoa:'',
              limiteMaximoCampo: 100,
          }
      },
@@ -60,8 +68,9 @@ export default {
                 /*  Analise dos demais casos onde todos os digitos são numericos. */
                 // Reseta o valor de nomeRazaoSocial.
                 this.nomeRazaoSocial = '';
+                this.tipoPessoa = '';
                 
-                this.limiteMaximoCampo = 14;
+                this.limiteMaximoCampo = 18;
                 // Realizar as validações para os demais variaveis.
 
                 // Verifica se é um IdFiscal
@@ -74,14 +83,14 @@ export default {
                 // Verifica se é um CPF
                 if(this.validarCPF(this.inputValue.padStart(11,'0'))){
                     this.cpf = this.inputValue; 
-                    this.limiteMaximoCampo = 11;
+                    this.limiteMaximoCampo = 14;
                 }else{
                     this.cpf = '';
                 }
 
                 // Verifica se é um CNPJ
                 if(this.validarCNPJ(this.inputValue.padStart(14,'0'))){
-                    this.limiteMaximoCampo = 14;
+                    this.limiteMaximoCampo = 18;
                     this.cnpj = this.inputValue; 
                 }else{
                     this.cnpj = '';
@@ -92,24 +101,33 @@ export default {
                 
                 // Verifica se o usuario não deseja consultar pela Raiz do CNPJ.
                 if( !this.pesquisarPorRaizCnpj ) this.cnpjRaiz = '';  
+
+                // Verifica se o usuario digitou mais de 8 caracteres.
+
+                if(this.inputValue.length > 8 && this.pesquisarPorRaizCnpj ){
+                    this.cnpjRaiz = '';
+                    this.pesquisarPorRaizCnpj = false;
+                } 
+
             }                         
         },
         validarCPF(pCpf){
+            pCpf = pCpf.replace(/[^\d]+/g,'');
                        
-            if ( pCpf.length != 11 ||
-            pCpf == null || 
-            pCpf ==  "" ||
-            pCpf == undefined ||
-            pCpf == "00000000000" ||
-            pCpf == "11111111111" ||
-            pCpf == "22222222222" ||
-            pCpf == "33333333333" ||
-            pCpf == "44444444444" ||
-            pCpf == "55555555555" ||
-            pCpf == "66666666666" ||
-            pCpf == "77777777777" ||
-            pCpf == "88888888888" ||
-            pCpf == "99999999999" ) return false;
+            if ( pCpf.length !== 11 ||
+            pCpf === null || 
+            pCpf ===  "" ||
+            pCpf === undefined ||
+            pCpf === "00000000000" ||
+            pCpf === "11111111111" ||
+            pCpf === "22222222222" ||
+            pCpf === "33333333333" ||
+            pCpf === "44444444444" ||
+            pCpf === "55555555555" ||
+            pCpf === "66666666666" ||
+            pCpf === "77777777777" ||
+            pCpf === "88888888888" ||
+            pCpf === "99999999999" ) return false;
 
             var Soma;
             var Resto;
