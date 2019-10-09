@@ -3,15 +3,15 @@
         <h1>{{ titulo }}</h1>
         <div class="center">
             <input id="multi-input" type="text" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" v-bind:maxlength="limiteMaximoCampo" />
-            <button v-bind="validateInput()">Pesquisar</button>
+            <button @click="validateInput">Pesquisar</button>
             <div v-if="inputValue.length === 8 && inputValue.match(/[A-Zi]/i) === null">
                 <input type="checkbox" v-model="pesquisarPorRaizCnpj" @on="pesquisarPorRaizCnpj = $event.target.value"> Deseja pesquisar pela raiz do CNPJ.<br>
             </div>
-            <div v-if="inputValue.length === 3 && inputValue.match(/[A-Zi]/i) !== null">
-                <input type="radio" name="tipoPessoa" id="pessoaFisica" v-model="tipoPessoa" value="PESSOA_FISICA" >
-                <label for="pessoaFisica">Pessoa Fisíca</label>
-                <input type="radio" name="tipoPessoa" id="pessoaJuridica" v-model="tipoPessoa" value="PESSOA_JURIDICA" >
-                <label for="pessoaJuridica">Pessoa Juridica</label>
+            <div v-if="inputValue.length >= 3 && inputValue.match(/[A-Zi]/i) !== null">
+                <span v-for="tipo in tipos" v-bind:key="tipo.idTipoPessoa">
+                    <input type="radio" name="tipoPessoa" :id="tipo.idTipoPessoa" v-model="tipoPessoa" :value="tipo.idTipoPessoa" >
+                    <label for="pessoaJuridica">{{ tipo.decricaoTipoPessoa }}</label>
+                </span>
             </div>
         </div>
         <div>
@@ -50,7 +50,14 @@ export default {
 			pesquisarPorRaizCnpj: false,
 			tipoPessoa:"",
 			limiteMaximoCampo: 100,
+			tipos: [ {idTipoPessoa: "PESSOA_FISICA",
+				decricaoTipoPessoa: "Pessoa Fisíca"},
+			{idTipoPessoa: "PESSOA_JURIDICA",
+				decricaoTipoPessoa: "Pessoa Jurídica"},
+			{idTipoPessoa: "AMBOS",
+				decricaoTipoPessoa: "Todos"} ]
 		};
+		
 	},
 	methods: {
 		validateInput(){
@@ -69,7 +76,8 @@ export default {
 				// Reseta o valor de nomeRazaoSocial.
 				this.nomeRazaoSocial = "";
 				this.tipoPessoa = "";
-                
+
+				// Limita o tamanho do campo para o maior formato.
 				this.limiteMaximoCampo = 18;
 				// Realizar as validações para os demais variaveis.
 
@@ -107,49 +115,46 @@ export default {
 				if(this.inputValue.length > 8 && this.pesquisarPorRaizCnpj ){
 					this.cnpjRaiz = "";
 					this.pesquisarPorRaizCnpj = false;
-				} 
+				}
 
 			}                         
 		},
 		validarCPF(pCpf){
 			pCpf = pCpf.replace(/[^\d]+/g,"");
-                       
-			if ( pCpf.length !== 11 ||
-            pCpf === null || 
-            pCpf ===  "" ||
-            pCpf === undefined ||
-            pCpf === "00000000000" ||
-            pCpf === "11111111111" ||
-            pCpf === "22222222222" ||
-            pCpf === "33333333333" ||
-            pCpf === "44444444444" ||
-            pCpf === "55555555555" ||
-            pCpf === "66666666666" ||
-            pCpf === "77777777777" ||
-            pCpf === "88888888888" ||
-            pCpf === "99999999999" ) return false;
+                                   
+			if ( pCpf.length != 11 ||
+            pCpf == "00000000000" ||
+            pCpf == "11111111111" ||
+            pCpf == "22222222222" ||
+            pCpf == "33333333333" ||
+            pCpf == "44444444444" ||
+            pCpf == "55555555555" ||
+            pCpf == "66666666666" ||
+            pCpf == "77777777777" ||
+            pCpf == "88888888888" ||
+            pCpf == "99999999999" ) return false;
 
-			var Soma;
-			var Resto;
-			Soma = 0;
-            
-			for (var i=1; i<=9; i++) Soma = Soma + parseInt(pCpf.substring(i-1, i)) * (11 - i);
-            
-			Resto = (Soma * 10) % 11;
-            
-			if ((Resto == 10) || (Resto == 11))  Resto = 0;
-            
-			if (Resto != parseInt(pCpf.substring(9, 10)) ) return false;
-            
-			Soma = 0;
-            
-			for (var j = 1; j <= 10; j++) Soma = Soma + parseInt(pCpf.substring(j-1, j)) * (12 - j);
-                
-			Resto = (Soma * 10) % 11;
+			// Valida 1o digito	
+			var add = 0;
+			var rev = 0;
 
-			if ((Resto == 10) || (Resto == 11))  Resto = 0;
+			for (var i = 0; i < 9; i ++) add += parseInt(pCpf.charAt(i)) * (10 - i);
             
-			if (Resto != parseInt(pCpf.substring(10, 11) ) ) return false;
+			rev = 11 - (add % 11);
+            
+			if (rev == 10 || rev == 11)	rev = 0;
+
+			if (rev != parseInt(pCpf.charAt(9))) return false;
+
+			// Valida 2o digito
+			add = 0;
+			for (var j = 0; j < 10; j ++) add += parseInt(pCpf.charAt(j)) * (11 - j);
+            
+			rev = 11 - (add % 11);
+            
+			if (rev == 10 || rev == 11)	rev = 0;
+
+			if (rev != parseInt(pCpf.charAt(10))) return false;
             
 			return true;
 		},
@@ -158,9 +163,6 @@ export default {
         
 			// Elimina CNPJs invalidos conhecidos
 			if ( pCnpj.length != 14 ||
-            pCnpj == null || 
-            pCnpj ==  "" || 
-            pCnpj == undefined || 
             pCnpj == "00000000000000" || 
             pCnpj == "11111111111111" || 
             pCnpj == "22222222222222" || 
@@ -197,9 +199,6 @@ export default {
             
 			if (resultado != digitos.charAt(1)) return false;
 			return true;
-		},
-		validarPesquisaRaiz(p){
-			return this.pesquisarPorRaizCnpj = p;
 		}
 	}
 };
