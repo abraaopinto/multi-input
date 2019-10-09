@@ -2,13 +2,13 @@
     <div id="main-multi-input">
         <h1>{{ titulo }}</h1>
         <div class="center">
-            <input id="multi-input" type="text" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" v-bind:maxlength="limiteMaximoCampo" />
-            <button @click="validateInput">Pesquisar</button>
-            <div v-if="inputValue.length === 8 && inputValue.match(/[A-Zi]/i) === null">
-                <input type="checkbox" v-model="pesquisarPorRaizCnpj" @on="pesquisarPorRaizCnpj = $event.target.value"> Deseja pesquisar pela raiz do CNPJ.<br>
+            <input id="multi-input" type="text" @keypress="validateInput" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" :maxlength="limiteMaximoCampo" />
+            <button>Pesquisar</button>
+            <div v-if="validarRaizCnpj(inputValue)">
+                <input type="checkbox" v-model="pesquisarPorRaizCnpj" @change="validateInput"> Deseja pesquisar pela raiz do CNPJ.<br>
             </div>
             <div v-if="inputValue.length >= 3 && inputValue.match(/[A-Zi]/i) !== null">
-                <span v-for="tipo in tipos" v-bind:key="tipo.idTipoPessoa">
+                <span v-for="tipo in tipos" :key="tipo.idTipoPessoa">
                     <input type="radio" name="tipoPessoa" :id="tipo.idTipoPessoa" v-model="tipoPessoa" :value="tipo.idTipoPessoa" >
                     <label for="pessoaJuridica">{{ tipo.decricaoTipoPessoa }}</label>
                 </span>
@@ -56,11 +56,10 @@ export default {
 				decricaoTipoPessoa: "Pessoa Jurídica"},
 			{idTipoPessoa: "AMBOS",
 				decricaoTipoPessoa: "Todos"} ]
-		};
-		
+		};		
 	},
 	methods: {
-		validateInput(){
+		validateInput() {
 			const regexRegra1 = /[A-Zi]/i;
             
 			// Regra 1 - somente nomeRazaoSocial recebe o valor de inputValue pois o campo contem letras e numeros.
@@ -105,22 +104,21 @@ export default {
 				}
 
 				// Verifica se é uma Raiz do CNPJ.
-				if(this.inputValue.length <= 8 && this.pesquisarPorRaizCnpj ) this.cnpjRaiz = this.inputValue;
+				if(this.validarRaizCnpj(this.inputValue) && this.pesquisarPorRaizCnpj) this.cnpjRaiz = this.inputValue;
                 
-				// Verifica se o usuario não deseja consultar pela Raiz do CNPJ.
+				// Verifica se o usuario desmarcou a opção e não deseja mais consultar pela Raiz do CNPJ.
 				if( !this.pesquisarPorRaizCnpj ) this.cnpjRaiz = "";  
 
-				// Verifica se o usuario digitou mais de 8 caracteres.
-
-				if(this.inputValue.length > 8 && this.pesquisarPorRaizCnpj ){
+				// Verifica se o usuario digitou mais de 10 caracteres.
+				if(!this.validarRaizCnpj(this.inputValue)){
 					this.cnpjRaiz = "";
 					this.pesquisarPorRaizCnpj = false;
 				}
 
 			}                         
 		},
-		validarCPF(pCpf){
-			pCpf = pCpf.replace(/[^\d]+/g,"");
+		validarCPF(pCpf) {
+			pCpf =  this.removeMascara(pCpf);
                                    
 			if ( pCpf.length != 11 ||
             pCpf == "00000000000" ||
@@ -159,7 +157,7 @@ export default {
 			return true;
 		},
 		validarCNPJ(pCnpj) {
-			pCnpj = pCnpj.replace(/[^\d]+/g,"");
+			pCnpj = this.removeMascara(pCnpj);
         
 			// Elimina CNPJs invalidos conhecidos
 			if ( pCnpj.length != 14 ||
@@ -199,11 +197,16 @@ export default {
             
 			if (resultado != digitos.charAt(1)) return false;
 			return true;
+		},
+		validarRaizCnpj(pRaiz){
+			if(pRaiz.match(/[A-Zi]/i) != null) return false;
+			pRaiz = this.removeMascara(pRaiz);
+			return pRaiz.length > 5 && pRaiz.length < 11 && pRaiz.match(/[A-Zi]/i) === null;
+		},
+		removeMascara(pValor) {
+			return pValor.replace(/[^\d]+/g,"");
 		}
-	},
-	removeMascara(value) {
-		return value.replace(/[^\d]+/g,"");
-	}
+	}	
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
