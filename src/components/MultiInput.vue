@@ -200,6 +200,9 @@ export default {
 			if (resultado != digitos.charAt(1)) return false;
 			return true;
 		}
+	},
+	removeMascara(value) {
+		return value.replace(/[^\d]+/g,"");
 	}
 };
 </script>
