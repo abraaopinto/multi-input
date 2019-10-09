@@ -2,7 +2,7 @@
     <div id="main-multi-input">
         <h1>{{ titulo }}</h1>
         <div class="center">
-            <input id="multi-input" mask="000.000.000-00" :raw="false" type="text" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" v-bind:maxlength="limiteMaximoCampo" />
+            <input id="multi-input" type="text" v-model="inputValue" placeholder="Informe o CPF, CNPJ, Raiz CNPJ ou Nome/Razão Social." size="80" minlength="3" v-bind:maxlength="limiteMaximoCampo" />
             <button v-bind="validateInput()">Pesquisar</button>
             <div v-if="inputValue.length === 8 && inputValue.match(/[A-Zi]/i) === null">
                 <input type="checkbox" v-model="pesquisarPorRaizCnpj" @on="pesquisarPorRaizCnpj = $event.target.value"> Deseja pesquisar pela raiz do CNPJ.<br>
