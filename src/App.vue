@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <MultiInput titulo="Componente MultiInput Mask"/>
+    <MultiInput titulo="Componente MultiInput Mask" />
   </div>
 </template>
 
@@ -16,5 +16,4 @@ export default {
 </script>
 
 <style>
-
 </style>
