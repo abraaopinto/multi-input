@@ -88,7 +88,7 @@ export default {
 		};
 	},
 	methods: {
-		handleInput () { this.$emit("input", this.inputValue); },
+		handleInput () { this.$emit("input", this.inputValue); this.validateInput(); },
 		isRequired (value) {
 			let isRequired = this.$attrs["required"] !== undefined && this.$attrs["required"] !== false;
 			if (!isRequired) {
