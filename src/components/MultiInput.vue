@@ -12,9 +12,9 @@
         size="80"
         minlength="3"
         :maxlength="limiteMaximoCampo"
+        required
         :rules="[
-        val => isRequired(val) || 'Este campo é obrigatório',
-        val => validateCpf(val) || 'CPF inválido'
+        val => isRequired(val) || 'Este campo é obrigatório'
 		]"
       />
       <button>Pesquisar</button>
@@ -64,101 +64,101 @@
 import Vue from "vue";
 
 export default {
-  name: "MultiInput",
-  props: {
-    titulo: String
-  },
-  data () {
-    return {
-      inputValue: "",
-      idFiscal: "",
-      cpf: "",
-      cnpj: "",
-      cnpjRaiz: "",
-      nomeRazaoSocial: "",
-      pesquisarPorRaizCnpj: false,
-      tipoPessoa: "",
-      limiteMaximoCampo: 100,
-      tipos: [{        idTipoPessoa: "PESSOA_FISICA",
-        decricaoTipoPessoa: "Pessoa Fisíca"      },
-      {        idTipoPessoa: "PESSOA_JURIDICA",
-        decricaoTipoPessoa: "Pessoa Jurídica"      },
-      {        idTipoPessoa: "AMBOS",
-        decricaoTipoPessoa: "Todos"      }]
-    };
-  },
-  methods: {
-    handleInput () { this.$emit("input", this.inputValue); },
-    isRequired (value) {
-      let isRequired = this.$attrs['required'] !== undefined && this.$attrs['required'] !== false
-      if (!isRequired) {
-        return true
-      }
-      return value !== undefined && value !== ''
-    }
+	name: "MultiInput",
+	props: {
+		titulo: String
+	},
+	data () {
+		return {
+			inputValue: "",
+			idFiscal: "",
+			cpf: "",
+			cnpj: "",
+			cnpjRaiz: "",
+			nomeRazaoSocial: "",
+			pesquisarPorRaizCnpj: false,
+			tipoPessoa: "",
+			limiteMaximoCampo: 100,
+			tipos: [{        idTipoPessoa: "PESSOA_FISICA",
+				decricaoTipoPessoa: "Pessoa Fisíca"      },
+			{        idTipoPessoa: "PESSOA_JURIDICA",
+				decricaoTipoPessoa: "Pessoa Jurídica"      },
+			{        idTipoPessoa: "AMBOS",
+				decricaoTipoPessoa: "Todos"      }]
+		};
+	},
+	methods: {
+		handleInput () { this.$emit("input", this.inputValue); },
+		isRequired (value) {
+			let isRequired = this.$attrs["required"] !== undefined && this.$attrs["required"] !== false;
+			if (!isRequired) {
+				return true;
+			}
+			return value !== undefined && value !== "";
+		},
 		validateInput () {
-      const regexRegra1 = /[A-Zi]/i;
+			const regexRegra1 = /[A-Zi]/i;
 
-      // Regra 1 - somente nomeRazaoSocial recebe o valor de inputValue pois o campo contem letras e numeros.
-      if (this.inputValue.match(regexRegra1) !== null) {
-        this.limiteMaximoCampo = 100;
-        this.nomeRazaoSocial = this.inputValue;
-        this.idFiscal = "";
-        this.cpf = "";
-        this.cnpj = "";
-        this.cnpjRaiz = Vue.prototype.$validations;
+			// Regra 1 - somente nomeRazaoSocial recebe o valor de inputValue pois o campo contem letras e numeros.
+			if (this.inputValue.match(regexRegra1) !== null) {
+				this.limiteMaximoCampo = 100;
+				this.nomeRazaoSocial = this.inputValue;
+				this.idFiscal = "";
+				this.cpf = "";
+				this.cnpj = "";
+				this.cnpjRaiz = Vue.prototype.$validations;
 
-      } else {
-        /*  Analise dos demais casos onde todos os digitos são numericos. */
-        // Reseta o valor de nomeRazaoSocial.
-        this.nomeRazaoSocial = "";
-        this.tipoPessoa = "";
+			} else {
+				/*  Analise dos demais casos onde todos os digitos são numericos. */
+				// Reseta o valor de nomeRazaoSocial.
+				this.nomeRazaoSocial = "";
+				this.tipoPessoa = "";
 
-        // Limita o tamanho do campo para o maior formato.
-        this.limiteMaximoCampo = 18;
-        // Realizar as validações para os demais variaveis.
+				// Limita o tamanho do campo para o maior formato.
+				this.limiteMaximoCampo = 18;
+				// Realizar as validações para os demais variaveis.
 
-        // Verifica se é um IdFiscal
-        if (this.validarCPF(this.inputValue.padStart(11, "0")) || this.validarCNPJ(this.inputValue.padStart(14, "0"))) {
-          this.idFiscal = this.inputValue;
-        } else {
-          this.idFiscal = "";
-        }
+				// Verifica se é um IdFiscal
+				if (this.validarCPF(this.inputValue.padStart(11, "0")) || this.validarCNPJ(this.inputValue.padStart(14, "0"))) {
+					this.idFiscal = this.inputValue;
+				} else {
+					this.idFiscal = "";
+				}
 
-        // Verifica se é um CPF
-        if (this.validarCPF(this.inputValue.padStart(11, "0"))) {
-          this.cpf = this.inputValue;
-          this.limiteMaximoCampo = 14;
-        } else {
-          this.cpf = "";
-        }
+				// Verifica se é um CPF
+				if (this.validarCPF(this.inputValue.padStart(11, "0"))) {
+					this.cpf = this.inputValue;
+					this.limiteMaximoCampo = 14;
+				} else {
+					this.cpf = "";
+				}
 
-        // Verifica se é um CNPJ
-        if (this.validarCNPJ(this.inputValue.padStart(14, "0"))) {
-          this.limiteMaximoCampo = 18;
-          this.cnpj = this.inputValue;
-        } else {
-          this.cnpj = "";
-        }
+				// Verifica se é um CNPJ
+				if (this.validarCNPJ(this.inputValue.padStart(14, "0"))) {
+					this.limiteMaximoCampo = 18;
+					this.cnpj = this.inputValue;
+				} else {
+					this.cnpj = "";
+				}
 
-        // Verifica se é uma Raiz do CNPJ.
-        if (this.validarRaizCnpj(this.inputValue) && this.pesquisarPorRaizCnpj) this.cnpjRaiz = this.inputValue;
+				// Verifica se é uma Raiz do CNPJ.
+				if (this.validarRaizCnpj(this.inputValue) && this.pesquisarPorRaizCnpj) this.cnpjRaiz = this.inputValue;
 
-        // Verifica se o usuario desmarcou a opção e não deseja mais consultar pela Raiz do CNPJ.
-        if (!this.pesquisarPorRaizCnpj) this.cnpjRaiz = "";
+				// Verifica se o usuario desmarcou a opção e não deseja mais consultar pela Raiz do CNPJ.
+				if (!this.pesquisarPorRaizCnpj) this.cnpjRaiz = "";
 
-        // Verifica se o usuario digitou mais de 10 caracteres.
-        if (!this.validarRaizCnpj(this.inputValue)) {
-          this.cnpjRaiz = "";
-          this.pesquisarPorRaizCnpj = false;
-        }
+				// Verifica se o usuario digitou mais de 10 caracteres.
+				if (!this.validarRaizCnpj(this.inputValue)) {
+					this.cnpjRaiz = "";
+					this.pesquisarPorRaizCnpj = false;
+				}
+			}
+			return Vue.prototype.$validations.validateInput();
+		},
+		validarCPF (pCpf) {
+			pCpf = this.removeMascara(pCpf);
 
-      }
-    },
-    validarCPF (pCpf) {
-      pCpf = this.removeMascara(pCpf);
-
-      if (pCpf.length != 11 ||
+			if (pCpf.length != 11 ||
         pCpf == "00000000000" ||
         pCpf == "11111111111" ||
         pCpf == "22222222222" ||
@@ -170,35 +170,35 @@ export default {
         pCpf == "88888888888" ||
         pCpf == "99999999999") return false;
 
-      // Valida 1o digito	
-      var add = 0;
-      var rev = 0;
+			// Valida 1o digito	
+			var add = 0;
+			var rev = 0;
 
-      for (var i = 0; i < 9; i++) add += parseInt(pCpf.charAt(i)) * (10 - i);
+			for (var i = 0; i < 9; i++) add += parseInt(pCpf.charAt(i)) * (10 - i);
 
-      rev = 11 - (add % 11);
+			rev = 11 - (add % 11);
 
-      if (rev == 10 || rev == 11) rev = 0;
+			if (rev == 10 || rev == 11) rev = 0;
 
-      if (rev != parseInt(pCpf.charAt(9))) return false;
+			if (rev != parseInt(pCpf.charAt(9))) return false;
 
-      // Valida 2o digito
-      add = 0;
-      for (var j = 0; j < 10; j++) add += parseInt(pCpf.charAt(j)) * (11 - j);
+			// Valida 2o digito
+			add = 0;
+			for (var j = 0; j < 10; j++) add += parseInt(pCpf.charAt(j)) * (11 - j);
 
-      rev = 11 - (add % 11);
+			rev = 11 - (add % 11);
 
-      if (rev == 10 || rev == 11) rev = 0;
+			if (rev == 10 || rev == 11) rev = 0;
 
-      if (rev != parseInt(pCpf.charAt(10))) return false;
+			if (rev != parseInt(pCpf.charAt(10))) return false;
 
-      return true;
-    },
-    validarCNPJ (pCnpj) {
-      pCnpj = this.removeMascara(pCnpj);
+			return true;
+		},
+		validarCNPJ (pCnpj) {
+			pCnpj = this.removeMascara(pCnpj);
 
-      // Elimina CNPJs invalidos conhecidos
-      if (pCnpj.length != 14 ||
+			// Elimina CNPJs invalidos conhecidos
+			if (pCnpj.length != 14 ||
         pCnpj == "00000000000000" ||
         pCnpj == "11111111111111" ||
         pCnpj == "22222222222222" ||
@@ -210,41 +210,41 @@ export default {
         pCnpj == "88888888888888" ||
         pCnpj == "99999999999999") return false;
 
-      // Valida DVs
-      var tamanho = pCnpj.length - 2;
-      var numeros = pCnpj.substring(0, tamanho);
-      var digitos = pCnpj.substring(tamanho);
-      var soma = 0;
-      var pos = tamanho - 7;
-      for (i = tamanho; i >= 1; i--) {
-        soma += numeros.charAt(tamanho - i) * pos--;
-        if (pos < 2) pos = 9;
-      }
-      var resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-      if (resultado != digitos.charAt(0)) return false;
-      tamanho = tamanho + 1;
-      numeros = pCnpj.substring(0, tamanho);
-      soma = 0;
-      pos = tamanho - 7;
+			// Valida DVs
+			var tamanho = pCnpj.length - 2;
+			var numeros = pCnpj.substring(0, tamanho);
+			var digitos = pCnpj.substring(tamanho);
+			var soma = 0;
+			var pos = tamanho - 7;
+			for (i = tamanho; i >= 1; i--) {
+				soma += numeros.charAt(tamanho - i) * pos--;
+				if (pos < 2) pos = 9;
+			}
+			var resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+			if (resultado != digitos.charAt(0)) return false;
+			tamanho = tamanho + 1;
+			numeros = pCnpj.substring(0, tamanho);
+			soma = 0;
+			pos = tamanho - 7;
 
-      for (var i = tamanho; i >= 1; i--) {
-        soma += numeros.charAt(tamanho - i) * pos--;
-        if (pos < 2) pos = 9;
-      }
-      resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+			for (var i = tamanho; i >= 1; i--) {
+				soma += numeros.charAt(tamanho - i) * pos--;
+				if (pos < 2) pos = 9;
+			}
+			resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
 
-      if (resultado != digitos.charAt(1)) return false;
-      return true;
-    },
-    validarRaizCnpj (pRaiz) {
-      if (pRaiz.match(/[A-Zi]/i) != null) return false;
-      pRaiz = this.removeMascara(pRaiz);
-      return pRaiz.length > 5 && pRaiz.length < 11 && pRaiz.match(/[A-Zi]/i) === null;
-    },
-    removeMascara (pValor) {
-      return pValor.replace(/[^\d]+/g, "");
-    }
-  }
+			if (resultado != digitos.charAt(1)) return false;
+			return true;
+		},
+		validarRaizCnpj (pRaiz) {
+			if (pRaiz.match(/[A-Zi]/i) != null) return false;
+			pRaiz = this.removeMascara(pRaiz);
+			return pRaiz.length > 5 && pRaiz.length < 11 && pRaiz.match(/[A-Zi]/i) === null;
+		},
+		removeMascara (pValor) {
+			return pValor.replace(/[^\d]+/g, "");
+		}
+	}
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
